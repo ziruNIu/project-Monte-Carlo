@@ -5,10 +5,12 @@ import numpy as np
 class Scheme(ABC):
 
     def generate_brownian_trajectory(self):
+        np.random.seed(0)
         trajectory = []
         for i in range(1, self.n + 1):
             trajectory.append(self.T / self.n *np.random.normal())
         self.brownian_trajectory = trajectory
+
 
     def set_scheme_coefficients(self, x0, a, k, sigma) :
         self.x0 = x0
@@ -69,3 +71,25 @@ class Implicit_4(Scheme):
 
     def __str__(self):
         return "Implicit number 4 with parameters : \n a : " + str(self.a) + "\n k : " + str(self.k) + "\n sigma : " + str(self.sigma)
+    
+
+class E_lambda(Scheme):
+    def __init__(self, x0, a, k, sigma, lambdaa, T, n):
+        self.set_scheme_coefficients(x0, a, k, sigma)
+        self.set_time_grid_parameters(T, n)
+        self.generate_brownian_trajectory()
+        self.lambdaa = lambdaa
+
+    def simulate(self):
+        diffusion = [self.x0]
+        for i in range(1, self.n + 1):
+            x = ((1 - 0.5*self.k*self.T/self.n)*np.sqrt(diffusion[-1]) + 
+                 0.5*self.sigma*self.brownian_trajectory[i-1]/(1 - 
+                0.5*self.k*self.T/self.n))**2
+            + (self.a - 0.25*self.sigma**2)*self.T / self.n 
+            + self.lambdaa*(self.brownian_trajectory[i-1]**2 - self.T/self.n)
+            diffusion.append(x)
+        self.simulation = diffusion
+
+    def __str__(self):
+        return "E(λ) with parameters : \n a : " + str(self.a) + "\n k : " + str(self.k) + "\n sigma : " + str(self.sigma) + "\n λ : " + str(self.lambdaa)
