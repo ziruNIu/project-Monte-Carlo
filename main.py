@@ -1,4 +1,4 @@
-from functions import *
+from scheme import *
 import matplotlib.pyplot as plt
 
 def test():
