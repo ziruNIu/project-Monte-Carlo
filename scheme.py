@@ -50,3 +50,14 @@ class CIR:
         for n in range(1, N+1): 
             x[n] = ((1 - 0.5*self.k*h)*np.sqrt(x[n-1]) + 0.5*self.sigma*dW[n-1]/(1 - 0.5*self.k*h))**2 + (self.a - 0.25*self.sigma**2)*h 
         return x
+    
+    def paths_euler(self, scheme_type, dW):
+        match scheme_type:
+            case "implicit_3":
+                return self.paths_euler_implicit_3(dW)
+            case "implicit_4":
+                return self.paths_euler_implicit_4(dW)
+            case "E_lambda":
+                return self.paths_euler_lambdaa(dW)
+            case "E_0":
+                return self.paths_euler_lambdaa_0(dW)
