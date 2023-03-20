@@ -16,6 +16,29 @@ def strong_error(scheme, scheme_type, steps, M = 10000):
     return np.array(result)
 
 
+def speed_convergence(scheme, scheme_type, N = 200, M = 10000):
+    result = []
+    sigma_grid = [0.1*i for i in range(25)]
+    for sigma in sigma_grid:
+        scheme.sigma = sigma
+        dW_2_10n = np.sqrt(scheme.T / N) * rng.standard_normal((20*N, M))
+        dW_1_10n = np.array([dW_2_10n[2*i]+dW_2_10n[2*i+1] for i in range(10*N)])
+        dW_2_n = np.array([dW_2_10n[5*i]+dW_2_10n[5*i+1] + dW_2_10n[5*i+2]+dW_2_10n[5*i+3] + dW_2_10n[5*i+4] for i in range(2*N)])
+        dW_1_n = np.array([dW_2_n[2*i]+dW_2_n[2*i+1] for i in range(N)])
+        scheme_paths_1_n= scheme.paths_euler(scheme_type, dW_1_n)
+        scheme_paths_2_n = scheme.paths_euler(scheme_type, dW_2_n)
+        scheme_paths_1_10n= scheme.paths_euler(scheme_type, dW_1_10n)
+        scheme_paths_2_10n = scheme.paths_euler(scheme_type, dW_2_10n)
+        error_n = scheme_paths_1_n - np.array([scheme_paths_2_n[2*i] for i in range(N + 1)])
+        error_10n = scheme_paths_1_10n - np.array([scheme_paths_2_10n[2*i] for i in range(10*N + 1)])
+        E_n = np.max(np.abs(error_n), axis = 0)
+        I_M_n = np.mean(E_n)
+        E_10n = np.max(np.abs(error_10n), axis = 0)
+        I_M_10n = np.mean(E_10n)
+        result.append(np.log(I_M_n) - np.log(I_M_10n))
+    return np.array(result)
+
+
 
 def weak_error(f, scheme, scheme_type, steps, M = 10000):
     """
