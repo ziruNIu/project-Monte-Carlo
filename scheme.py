@@ -51,7 +51,7 @@ class CIR:
             x[n] = ((1 - 0.5*self.k*h)*np.sqrt(x[n-1]) + 0.5*self.sigma*dW[n-1]/(1 - 0.5*self.k*h))**2 + (self.a - 0.25*self.sigma**2)*h 
         return x
     
-    def paths_dd(self, dW):
+    def paths_euler_dd(self, dW):
 
         N, M = dW.shape
         h = self.T / N
@@ -63,7 +63,7 @@ class CIR:
         
 
 
-    def paths_diop(self, dW):
+    def paths_euler_diop(self, dW):
 
         N, M = dW.shape
         h = self.T / N
@@ -86,6 +86,6 @@ class CIR:
             case "E_0":
                 return self.paths_euler_lambdaa_0(dW)
             case "D-D":
-                return self.paths_dd(dW)
+                return self.paths_euler_dd(dW)
             case "Diop":
-                return self.paths_diop(dW)
+                return self.paths_euler_diop(dW)
