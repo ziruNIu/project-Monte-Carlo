@@ -3,15 +3,82 @@ from scipy.integrate import quad
 
 
 class Heston:
-    def __init__(self, kappa, theta, sigma, rho, v0,r,s0,T):
-        self.kappa =kappa
+    def __init__(self, k, theta, sigma, rho, v0,r,s0,T):
+        self.k =k
         self.theta = theta
+        self.a = self.theta*self.k
         self.sigma = sigma
         self.rho = rho
         self.v0 = v0
-        self.r = r
         self.s0 = s0
+        self.r = r
         self.T = T
+
+    def paths_euler_implicit_3(self, dW1,dW2):
+        pass
+
+    def paths_euler_implicit_4(self, dW1,dW2):
+        pass
+
+    def paths_euler_lambdaa(self, dW1,dW2):
+        pass
+
+    def paths_euler_lambdaa_0(self, dW1,dW2):
+        pass
+
+    def paths_euler_dd(self, dW1, dW2):
+        
+        N, M = dW1.shape
+        h = self.T / N
+        vol_square = np.empty(shape=(N+1,M))
+        s = np.empty(shape=(N+1,M))
+        s[0] = self.s0
+        vol_square[0] = self.v0
+        dW_s = self.rho * dW1 + np.sqrt((1 - self.rho**2))*dW2
+        for n in range(1, N+1): 
+            vol_square[n] = vol_square[n-1] + h*(self.a - self.k* vol_square[n-1]) + self.sigma * np.sqrt(vol_square[n-1] * (vol_square[n-1] >0)) * dW1[n-1]
+       
+        vol = np.sqrt(vol_square[:-1])
+
+
+        for n in range(1, N+1):
+            s[n] = s[n-1] + self.r * s[n-1] * h + vol[n-1] * s[n-1] * dW_s[n-1]
+
+        return s, vol
+
+
+    def paths_euler_diop(self, dW1,dW2):
+
+        N, M = dW1.shape
+        h = self.T / N
+        vol_square = np.empty(shape=(N+1,M))
+        s = np.empty(shape=(N+1,M))
+        s[0] = self.s0
+        vol_square[0] = self.v0
+        dW_s = self.rho * dW1 + np.sqrt((1 - self.rho**2))*dW2
+        for n in range(1, N+1): 
+            vol_square[n] = vol_square[n-1] + h*(self.a - self.k* vol_square[n-1]) + self.sigma * np.sqrt(vol_square[n-1]) * dW1[n-1]
+            vol_square[n] = np.abs(vol_square[n])       
+        vol = np.sqrt(vol_square[:-1])
+        for n in range(1, N+1):
+            s[n] = s[n-1] + self.r * s[n-1] * h + vol[n-1] * s[n-1] * dW_s[n-1]
+
+        return s, vol
+
+    def paths_euler(self, scheme_type, dW1, dW2):
+        match scheme_type:
+            case "implicit_3":
+                return self.paths_euler_implicit_3(dW1,dW2)
+            case "implicit_4":
+                return self.paths_euler_implicit_4(dW1,dW2)
+            case "E_lambda":
+                return self.paths_euler_lambdaa(dW1,dW2)
+            case "E_0":
+                return self.paths_euler_lambdaa_0(dW1,dW2)
+            case "D-D":
+                return self.paths_euler_dd(dW1,dW2)
+            case "Diop":
+                return self.paths_euler_diop(dW1,dW2)
 
 
     def call(self, K):
@@ -27,8 +94,8 @@ class Heston:
     def f_1(self, phi):
         
         u = 0.5
-        b = self.kappa - self.rho * self.sigma
-        a = self.kappa * self.theta
+        b = self.k - self.rho * self.sigma
+        a = self.k * self.theta
         x = np.log(self.s0)
         d = np.sqrt((self.rho * self.sigma * phi * 1j - b)**2 - self.sigma**2 * (2 * u * phi * 1j - phi**2))
         g = (b - self.rho * self.sigma * phi * 1j + d) / (b - self.rho * self.sigma * phi * 1j - d)
@@ -38,8 +105,8 @@ class Heston:
     
     def f_2(self, phi):
         u = -0.5
-        b = self.kappa - self.rho * self.sigma
-        a = self.kappa * self.theta
+        b = self.k
+        a = self.k * self.theta
         x = np.log(self.s0)
         d = np.sqrt((self.rho * self.sigma * phi * 1j - b)**2 - self.sigma**2 * (2 * u * phi * 1j - phi**2))
         g = (b - self.rho * self.sigma * phi * 1j + d) / (b - self.rho * self.sigma * phi * 1j - d)
