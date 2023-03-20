@@ -35,7 +35,7 @@ def speed_convergence(scheme, scheme_type, N = 200, M = 10000):
         I_M_n = np.mean(E_n)
         E_10n = np.max(np.abs(error_10n), axis = 0)
         I_M_10n = np.mean(E_10n)
-        result.append(np.log(I_M_n) - np.log(I_M_10n))
+        result.append(np.log10(I_M_n) - np.log10(I_M_10n))
     return np.array(result)
 
 
