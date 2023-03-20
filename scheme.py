@@ -57,7 +57,7 @@ class CIR:
             x[n][x[n] < 0] = 0
         return x
     
-    def paths_dd(self, dW):
+    def paths_euler_dd(self, dW):
 
         N, M = dW.shape
         h = self.T / N
@@ -69,7 +69,7 @@ class CIR:
         
 
 
-    def paths_diop(self, dW):
+    def paths_euler_diop(self, dW):
 
         N, M = dW.shape
         h = self.T / N
@@ -92,6 +92,6 @@ class CIR:
             case "E_0":
                 return self.paths_euler_lambdaa_0(dW)
             case "D-D":
-                return self.paths_dd(dW)
+                return self.paths_euler_dd(dW)
             case "Diop":
-                return self.paths_diop(dW)
+                return self.paths_euler_diop(dW)
