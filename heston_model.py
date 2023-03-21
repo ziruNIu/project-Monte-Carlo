@@ -15,7 +15,24 @@ class Heston:
         self.T = T
 
     def paths_euler_implicit_3(self, dW1,dW2):
-        pass
+        N, M = dW1.shape
+        h = self.T / N
+        vol_square = np.empty(shape=(N+1,M))
+        s = np.empty(shape=(N+1,M))
+        s[0] = self.s0
+        vol_square[0] = self.v0
+        dW_s = self.rho * dW1 + np.sqrt((1 - self.rho**2))*dW2
+
+        for n in range(1, N+1): 
+            det = self.sigma**2 * (dW1[n-1])**2 + 4 * (vol_square[n-1] + (self.a - 0.5*self.sigma**2)*h) * (1 + self.k*h)
+            val = ((self.sigma*dW1[n-1] + np.sqrt(self.sigma**2 * (dW1[n-1])**2 + 4 * (vol_square[n-1] + (self.a - 0.5*self.sigma**2)*h) * (1 + self.k*h)))/(2*(1+self.k*h))) ** 2
+            vol_square[n][det>=0] = val[det>=0]
+
+        vol = np.sqrt(vol_square[:-1])
+        for n in range(1, N+1):
+            s[n] = s[n-1] + self.r * s[n-1] * h + vol[n-1] * s[n-1] * dW_s[n-1]
+
+        return s, vol
 
     def paths_euler_implicit_4(self, dW1,dW2):
         pass
@@ -79,6 +96,7 @@ class Heston:
                 return self.paths_euler_dd(dW1,dW2)
             case "Diop":
                 return self.paths_euler_diop(dW1,dW2)
+    
 
 
     def call(self, K):
