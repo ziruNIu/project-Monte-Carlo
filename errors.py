@@ -46,17 +46,20 @@ def weak_error(f, scheme, scheme_type, steps, M = 10000):
     """
     result = []
     for N in steps:
-        dW_2 = np.sqrt(scheme.T / N) * rng.standard_normal((N, M))
-        dW_1 = np.array([dW_2[2*i]+dW_2[2*i+1] for i in range(N//2)]) 
+        dW_2 = np.sqrt(scheme.T / (2*N)) * rng.standard_normal((2*N, M))
+        dW_1 = dW_2[::2] + dW_2[1::2]
         paths_1 = scheme.paths_euler(scheme_type, dW_1)
         paths_2 = scheme.paths_euler(scheme_type, dW_2)
         sample_1 = f(paths_1[-1])
         sample_2 = f(paths_2[-1])
-        mean_1 = sample_1.mean()
-        mean_2 = sample_2.mean()
-        result.append([mean_1, mean_2])
+        mean_normal = sample_1.mean()
+        mean_double = sample_2.mean()
+        mean_extrapolation = 2*mean_double - mean_normal
 
+        result.append([mean_normal, mean_double, mean_extrapolation])
+    
     return np.array(result)
+    # return pd.DataFrame(data=result, columns=['normal', 'double', 'extrapolation'])
         
 
 
