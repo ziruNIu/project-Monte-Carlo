@@ -32,7 +32,7 @@ class CIR:
         x = np.zeros(shape=(N+1,M))
         x[0] = self.x0
         for n in range(1, N+1): 
-            det = (0.5*self.sigma * dW[n-1] + np.sqrt(x[n-1]))**2 + 4 * ((self.a*0.5 - 0.125*self.sigma**2)*h) * (1 + self.k*h)
+            det = (0.5*self.sigma * dW[n-1] + np.sqrt(x[n-1]))**2 + 4 * ((self.a*0.5 - 0.125*self.sigma**2)*h) * (1 + 0.5*self.k*h)
             val = ((0.5*self.sigma*dW[n-1] + np.sqrt(x[n-1]) + np.sqrt((0.5*self.sigma * dW[n-1] + np.sqrt(x[n-1]))**2 + 4 * ((self.a*0.5 - 0.125*self.sigma**2)*h) * (1 + 0.5*self.k*h)))/(2*(1+ 0.5*self.k*h))) ** 2
             x[n][det>=0] = val[det>=0]
         return x

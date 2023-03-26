@@ -21,7 +21,7 @@ def speed_convergence(scheme, scheme_type, N = 200, M = 10000):
     sigma_grid = [0.1*i for i in range(25)]
     for sigma in sigma_grid:
         scheme.sigma = sigma
-        dW_2_10n = np.sqrt(scheme.T / N) * rng.standard_normal((20*N, M))
+        dW_2_10n = np.sqrt(scheme.T / (20*N)) * rng.standard_normal((20*N, M))
         dW_1_10n = np.array([dW_2_10n[2*i]+dW_2_10n[2*i+1] for i in range(10*N)])
         dW_2_n = np.array([dW_2_10n[5*i]+dW_2_10n[5*i+1] + dW_2_10n[5*i+2]+dW_2_10n[5*i+3] + dW_2_10n[5*i+4] for i in range(2*N)])
         dW_1_n = np.array([dW_2_n[2*i]+dW_2_n[2*i+1] for i in range(N)])
