@@ -3,7 +3,7 @@ from scipy.integrate import quad
 
 
 class Heston:
-    def __init__(self, k, theta, sigma, rho, v0,r,s0,T):
+    def __init__(self, k, theta, sigma, rho, v0,r,s0,T, lambdaa = 0):
         self.k =k
         self.theta = theta
         self.a = self.theta*self.k
@@ -13,6 +13,7 @@ class Heston:
         self.s0 = s0
         self.r = r
         self.T = T
+        self.lambdaa = lambdaa
 
     def paths_euler_implicit_3(self, dW1,dW2):
         N, M = dW1.shape
@@ -35,13 +36,66 @@ class Heston:
         return s, vol
 
     def paths_euler_implicit_4(self, dW1,dW2):
-        pass
+
+        N, M = dW1.shape
+        h = self.T / N
+        vol_square = np.empty(shape=(N+1,M))
+        s = np.empty(shape=(N+1,M))
+        s[0] = self.s0
+        vol_square[0] = self.v0
+        dW_s = self.rho * dW1 + np.sqrt((1 - self.rho**2))*dW2
+
+        for n in range(1, N+1): 
+            det = (0.5*self.sigma * dW1[n-1] + np.sqrt(vol_square[n-1]))**2 + 4 * ((self.a*0.5 - 0.125*self.sigma**2)*h) * (1 + 0.5*self.k*h)
+            val = ((0.5*self.sigma*dW1[n-1] + np.sqrt(vol_square[n-1]) + np.sqrt((0.5*self.sigma * dW1[n-1] + np.sqrt(vol_square[n-1]))**2 + 4 * ((self.a*0.5 - 0.125*self.sigma**2)*h) * (1 + 0.5*self.k*h)))/(2*(1+ 0.5*self.k*h))) ** 2
+            vol_square[n][det>=0] = val[det>=0]
+
+        vol = np.sqrt(vol_square[:-1])
+        for n in range(1, N+1):
+            s[n] = s[n-1] + self.r * s[n-1] * h + vol[n-1] * s[n-1] * dW_s[n-1]
+
+        return s,vol
+
 
     def paths_euler_lambdaa(self, dW1,dW2):
-        pass
+        N, M = dW1.shape
+        h = self.T / N
+        vol_square = np.empty(shape=(N+1,M))
+        s = np.empty(shape=(N+1,M))
+        s[0] = self.s0
+        vol_square[0] = self.v0
+        dW_s = self.rho * dW1 + np.sqrt((1 - self.rho**2))*dW2
+        for n in range(1, N+1): 
+            vol_square[n] = ((1 - 0.5*self.k*h)*np.sqrt(vol_square[n-1]) + 0.5*self.sigma*dW1[n-1]/(1 - 0.5*self.k*h))**2 + (self.a - 0.25*self.sigma**2)*h + self.lambdaa*(dW1[n-1]**2 - h)
+            vol_square[n][vol_square[n] < 0] = 0          
+       
+        vol = np.sqrt(vol_square[:-1])
+
+
+        for n in range(1, N+1):
+            s[n] = s[n-1] + self.r * s[n-1] * h + vol[n-1] * s[n-1] * dW_s[n-1]
+
+        return s, vol
 
     def paths_euler_lambdaa_0(self, dW1,dW2):
-        pass
+        N, M = dW1.shape
+        h = self.T / N
+        vol_square = np.empty(shape=(N+1,M))
+        s = np.empty(shape=(N+1,M))
+        s[0] = self.s0
+        vol_square[0] = self.v0
+        dW_s = self.rho * dW1 + np.sqrt((1 - self.rho**2))*dW2
+        for n in range(1, N+1): 
+            vol_square[n] = ((1 - 0.5*self.k*h)*np.sqrt(vol_square[n-1]) + 0.5*self.sigma*dW1[n-1]/(1 - 0.5*self.k*h))**2 + (self.a - 0.25*self.sigma**2)*h 
+            vol_square[n][vol_square[n] < 0] = 0
+       
+        vol = np.sqrt(vol_square[:-1])
+
+
+        for n in range(1, N+1):
+            s[n] = s[n-1] + self.r * s[n-1] * h + vol[n-1] * s[n-1] * dW_s[n-1]
+
+        return s, vol
 
     def paths_euler_dd(self, dW1, dW2):
         
