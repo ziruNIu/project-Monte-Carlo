@@ -13,7 +13,33 @@ class CIR:
         self.k = k
         self.sigma = sigma
         self.T = T   
-        self.lambdaa = lambdaa  
+        self.lambdaa = lambdaa
+
+    def paths_euler(self, scheme_type, dW):
+        """ Computes a diffusion the chosen scheme type with the size
+            of the brownian matrice
+
+        Args : ÒÒÒ
+            scheme_type (string) : from the 5 types of CIR schemes 
+            dW (numpy.array) : simulation of brownians of size (N+1,M)
+
+        Returns :
+            numpy.array : array of diffusion of the chosen scheme_type of
+                            size (N+1)
+        """
+        match scheme_type:
+            case "implicit_3":
+                return self.paths_euler_implicit_3(dW)
+            case "implicit_4":
+                return self.paths_euler_implicit_4(dW)
+            case "E_lambda":
+                return self.paths_euler_lambdaa(dW)
+            case "E_0":
+                return self.paths_euler_lambdaa_0(dW)
+            case "D-D":
+                return self.paths_euler_dd(dW)
+            case "Diop":
+                return self.paths_euler_diop(dW)
    
     def paths_euler_implicit_3(self, dW):
         N, M = dW.shape
@@ -80,18 +106,3 @@ class CIR:
             x[n] = np.abs(x[n])
         return x    
     
-
-    def paths_euler(self, scheme_type, dW):
-        match scheme_type:
-            case "implicit_3":
-                return self.paths_euler_implicit_3(dW)
-            case "implicit_4":
-                return self.paths_euler_implicit_4(dW)
-            case "E_lambda":
-                return self.paths_euler_lambdaa(dW)
-            case "E_0":
-                return self.paths_euler_lambdaa_0(dW)
-            case "D-D":
-                return self.paths_euler_dd(dW)
-            case "Diop":
-                return self.paths_euler_diop(dW)

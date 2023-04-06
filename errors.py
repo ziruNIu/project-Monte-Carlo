@@ -2,6 +2,18 @@ from scheme import *
 import pandas as pd
 
 def strong_error(scheme, scheme_type, steps, M = 10000):
+    """ Computes the strong error for the chosen scheme type
+
+        Args : 
+            scheme :  instance of CIR class with chosen parameters
+            scheme_type (string) : from the 5 types of CIR schemes 
+            steps (list<int>) : list of discretization steps
+            M (int) : number of simulation trajectories
+
+        Returns :
+            numpy.array : array of the strong errors of the chosen 
+                          scheme_type for every step
+        """
     result = []
     for N in steps:
         dW_2 = np.sqrt(scheme.T / N) * rng.standard_normal((N, M))
@@ -17,6 +29,18 @@ def strong_error(scheme, scheme_type, steps, M = 10000):
 
 
 def speed_convergence(scheme, scheme_type, N = 200, M = 10000):
+    """ Computes the speed of convergence for the chosen scheme type
+
+        Args : 
+            scheme :  instance of CIR class with chosen parameters
+            scheme_type (string) : from the 5 types of CIR schemes 
+            N (int) : discretization steps
+            M (int) : number of simulation trajectories
+
+        Returns :
+            numpy.array : array of the speeds of convergence of the chosen 
+                          scheme_type for every sigma^2/2a
+        """
     result = []
     sigma_grid = [0.1*i for i in range(25)]
     for sigma in sigma_grid:
@@ -41,8 +65,18 @@ def speed_convergence(scheme, scheme_type, N = 200, M = 10000):
 
 
 def weak_error(f, scheme, scheme_type, steps, M = 10000):
-    """
-    here the function must allow the vectorized computation
+    """ Computes the weak error for the chosen scheme type
+
+    Args : 
+        f : function
+        scheme :  instance of CIR class with chosen parameters
+        scheme_type (string) : from the 5 types of CIR schemes 
+        steps (list<int>) : list of discretization steps
+        M (int) : number of simulation trajectories
+
+    Returns :
+        numpy.array : array of the weak errors of the chosen 
+                        scheme_type for every step
     """
     result = []
     for N in steps:
