@@ -65,10 +65,10 @@ def speed_convergence(scheme, scheme_type, N = 200, M = 10000):
 
 
 def weak_error(f, scheme, scheme_type, steps, M = 10000):
-    """ Computes the weak error for the chosen scheme type
+    """ Computes the weak error for the chosen scheme type, including the extrapolation result
 
     Args : 
-        f : function
+        f : test function
         scheme :  instance of CIR class with chosen parameters
         scheme_type (string) : from the 5 types of CIR schemes 
         steps (list<int>) : list of discretization steps
@@ -93,7 +93,6 @@ def weak_error(f, scheme, scheme_type, steps, M = 10000):
         result.append([mean_normal, mean_double, mean_extrapolation])
     
     return np.array(result)
-    # return pd.DataFrame(data=result, columns=['normal', 'double', 'extrapolation'])
         
 
 

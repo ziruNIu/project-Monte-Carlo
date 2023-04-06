@@ -137,6 +137,18 @@ class Heston:
         return s, vol
 
     def paths_euler(self, scheme_type, dW1, dW2):
+        """ Computes a diffusion the chosen scheme type with the size
+            of the brownian matrice to simulate the stock price in the heston model
+
+        Args : 
+            scheme_type (string) : from the 5 types of CIR schemes 
+            dW1 (numpy.array) : simulation of brownians of size (N+1,M)
+            dW2 (numpy.array) : simulation of brownians of size (N+1,M)
+
+        Returns :
+            numpy.array : array of diffusion of the chosen scheme_type of
+                            size (N+1)
+        """
         match scheme_type:
             case "implicit_3":
                 return self.paths_euler_implicit_3(dW1,dW2)
@@ -154,6 +166,13 @@ class Heston:
 
 
     def call(self, K):
+
+        """
+        compute the price of Call by using the semi-closed formula
+
+        Args:
+            K (float): the strik of the option  
+        """
         p1, p2 = self.integral(K)
         return self.s0*p1 - K*np.exp(-self.r * self.T) * p2 
 
@@ -164,6 +183,7 @@ class Heston:
         return  (0.5 + (1 / np.pi) * quad(integrand_1, 0, 100)[0]), (0.5 + (1 / np.pi) * quad(integrand_2, 0, 100)[0]) 
 
     def f_1(self, phi):
+
         
         u = 0.5
         b = self.k - self.rho * self.sigma
